@@ -1,8 +1,8 @@
-build:
-	go mod download && go build -o ./.bin/app ./services/streaming/cmd/main.go
+build_streaming_service:
+	$(MAKE) -C ./services/streaming
 
-run: build
-	./.bin/app
+run: build_streaming_service
+
 
 .DEFAULT_GOAL := run
-.PHONY: build, run
+.PHONY: build_streaming_service, run

@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/joho/godotenv"
-	"github.com/rvinnie/lightstream/services/streaming"
-	"github.com/rvinnie/lightstream/services/streaming/config"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/joho/godotenv"
+	"github.com/rvinnie/lightstream/services/streaming"
+	"github.com/rvinnie/lightstream/services/streaming/config"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	configPath = "services/streaming/config"
-	envPath    = "services/streaming/.env"
+	configPath = "./config"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 
 	// Initializing env variables
-	if err := godotenv.Load(envPath); err != nil {
+	if err := godotenv.Load(); err != nil {
 		logrus.Error("Error loading .env file")
 		return
 	}

@@ -1,10 +1,11 @@
 package streaming
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/rvinnie/lightstream/services/streaming/config"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/rvinnie/lightstream/services/streaming/config"
 )
 
 type Handler struct {
@@ -24,7 +25,7 @@ func (h *Handler) InitRoutes(cfg config.Config) *gin.Engine {
 }
 
 func (h *Handler) video(c *gin.Context) {
-	const path = "videos/test.mp4"
+	const path = "./videos/test.mp4"
 
 	_, err := os.ReadFile(path)
 	if err != nil {

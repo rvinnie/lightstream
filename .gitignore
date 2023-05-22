@@ -1,3 +1,5 @@
 .idea
+.DS_Store
+
+services/streaming/.bin
 services/streaming/.env
-.bin
