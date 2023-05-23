@@ -1,8 +1,15 @@
-build_streaming_service:
-	$(MAKE) -C ./services/streaming
+DOCKER_COMPOSE_FILE = docker-compose.yaml
 
-run: build_streaming_service
+up:
+	docker-compose -f ${DOCKER_COMPOSE_FILE} up --build
 
+down:
+	docker-compose -f ${DOCKER_COMPOSE_FILE} down
 
-.DEFAULT_GOAL := run
-.PHONY: build_streaming_service, run
+ps:
+	docker-compose -f ${DOCKER_COMPOSE_FILE} ps
+
+re: down up
+
+.DEFAULT_GOAL := re
+.PHONY: build, up, down, ps, re
