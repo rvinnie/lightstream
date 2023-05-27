@@ -46,7 +46,10 @@ func InitConfig(configDir string) (*Config, error) {
 		return nil, err
 	}
 
-	loadAWSConfig(&cfg)
+	if err := loadAWSConfig(&cfg); err != nil {
+		return nil, err
+	}
+
 	setEnvVariables(&cfg)
 
 	return &cfg, nil
