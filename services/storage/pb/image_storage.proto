@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/rvinnie/lightstream/services/storage/pb";
+
+package storage;
+
+service ImageStorage {
+  rpc GetImage (ImageStorageRequest) returns (ImageStorageResponse) {}
+}
+
+message ImageStorageRequest {
+  string path = 1;
+}
+
+message ImageStorageResponse {
+    bytes image = 1;
+}

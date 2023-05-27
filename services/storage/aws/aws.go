@@ -1,4 +1,4 @@
-package storage
+package aws
 
 import (
 	"context"
@@ -7,9 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type AWSStorageObject struct {
-	body        []byte
-	contentType string
+type AWS interface {
+	DownloadObject(path string) ([]byte, error)
 }
 
 type AWSManager struct {
@@ -17,8 +16,8 @@ type AWSManager struct {
 	client     *s3.Client
 }
 
-func NewAWSManager(bucketName string, cfg aws.Config) *AWSManager {
-	client := s3.NewFromConfig(cfg)
+func NewAWSManager(bucketName string, awsCfg aws.Config) *AWSManager {
+	client := s3.NewFromConfig(awsCfg)
 
 	return &AWSManager{
 		bucketName: bucketName,
@@ -26,20 +25,19 @@ func NewAWSManager(bucketName string, cfg aws.Config) *AWSManager {
 	}
 }
 
-func (m *AWSManager) DownloadObject(path string) (*AWSStorageObject, error) {
+func (m *AWSManager) DownloadObject(path string) ([]byte, error) {
 	// Getting object info
 	objectInfo, err := m.client.HeadObject(context.TODO(), &s3.HeadObjectInput{
 		Bucket: aws.String(m.bucketName),
 		Key:    aws.String(path),
 	})
 	if err != nil {
-		return &AWSStorageObject{}, err
+		return nil, err
 	}
 
 	// Creating an object to be returned
-	storageObject := AWSStorageObject{contentType: *objectInfo.ContentType}
-	storageObject.body = make([]byte, objectInfo.ContentLength)
-	w := manager.NewWriteAtBuffer(storageObject.body)
+	body := make([]byte, objectInfo.ContentLength)
+	w := manager.NewWriteAtBuffer(body)
 
 	// Download file into the buffer
 	downloader := manager.NewDownloader(m.client)
@@ -47,9 +45,6 @@ func (m *AWSManager) DownloadObject(path string) (*AWSStorageObject, error) {
 		Bucket: aws.String(m.bucketName),
 		Key:    aws.String(path),
 	})
-	if err != nil {
-		return &AWSStorageObject{}, err
-	}
 
-	return &storageObject, err
+	return body, err
 }

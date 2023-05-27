@@ -1,8 +1,6 @@
-http:
+gRPC:
   host: 0.0.0.0
   port: 8080
-  readTimeout: 10s
-  writeTimeout: 10s
 
 aws:
   bucketName: "rvinnie-lightstream"
