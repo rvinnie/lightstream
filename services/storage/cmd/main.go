@@ -1,15 +1,15 @@
 package main
 
 import (
-	"context"
-	"net/http"
+	"github.com/rvinnie/lightstream/services/storage/aws"
+	"github.com/rvinnie/lightstream/services/storage/config"
+	"github.com/rvinnie/lightstream/services/storage/transport/grpc"
+	"github.com/rvinnie/lightstream/services/storage/transport/grpc/handler"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/joho/godotenv"
-	"github.com/rvinnie/lightstream/services/storage"
-	"github.com/rvinnie/lightstream/services/storage/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +27,7 @@ func main() {
 		return
 	}
 
-	// Initializing config
+	//Initializing config
 	cfg, err := config.InitConfig(configPath)
 	if err != nil {
 		logrus.Error("Unable to parse config", err)
@@ -35,19 +35,17 @@ func main() {
 	}
 
 	// Creating AWS manager
-	awsManager := storage.NewAWSManager(cfg.AWS.BucketName, cfg.AWS.Config)
+	awsManager := aws.NewAWSManager(cfg.AWS.BucketName, cfg.AWS.Config)
 
-	handler := storage.NewHandler(awsManager)
-	server := &http.Server{
-		Addr:         cfg.HTTP.Host + ":" + cfg.HTTP.Port,
-		Handler:      handler.InitRoutes(*cfg),
-		ReadTimeout:  cfg.HTTP.ReadTimeout,
-		WriteTimeout: cfg.HTTP.WriteTimeout,
-	}
+	// Creating handlers
+	grpcHandler := handler.NewImageStorageHandler(*awsManager, cfg.AWS)
 
+	// Creating gRPC server
+	grpcServer := grpc.NewServer(grpcHandler)
 	go func() {
-		if err = server.ListenAndServe(); err != nil {
-			logrus.Fatalf("error occured while running http server: %s", err.Error())
+		logrus.Info("Starting storage microservice")
+		if err = grpcServer.ListenAndServe(cfg.GRPC.Port); err != nil {
+			logrus.Fatalf("error occured while running grpc server: %s", err.Error())
 		}
 	}()
 	logrus.Info("Storage microservice is running")
@@ -59,7 +57,5 @@ func main() {
 	<-quit
 	logrus.Info("Storage microservice shutting down")
 
-	if err := server.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("Error on storage microservice shutting down: %s", err.Error())
-	}
+	grpcServer.Stop()
 }

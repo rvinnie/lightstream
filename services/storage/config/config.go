@@ -6,23 +6,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"os"
-	"time"
-
 	"github.com/spf13/viper"
+	"os"
 )
 
 type Config struct {
-	HTTP HTTPConfig
+	GRPC GRPCConfig
 	AWS  AWSConfig
 	GIN  GINConfig
 }
 
-type HTTPConfig struct {
-	Host         string        `yaml:"host"`
-	Port         string        `yaml:"port"`
-	ReadTimeout  time.Duration `yaml:"readTimeout"`
-	WriteTimeout time.Duration `yaml:"writeTimeout"`
+type GRPCConfig struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
 }
 
 type AWSConfig struct {
@@ -42,7 +38,7 @@ func InitConfig(configDir string) (*Config, error) {
 	}
 
 	var cfg Config
-	if err := viper.UnmarshalKey("http", &cfg.HTTP); err != nil {
+	if err := viper.UnmarshalKey("gRPC", &cfg.GRPC); err != nil {
 		return nil, err
 	}
 
@@ -50,7 +46,10 @@ func InitConfig(configDir string) (*Config, error) {
 		return nil, err
 	}
 
-	loadAWSConfig(&cfg)
+	if err := loadAWSConfig(&cfg); err != nil {
+		return nil, err
+	}
+
 	setEnvVariables(&cfg)
 
 	return &cfg, nil
