@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.15.8
-// source: pb/image_storage.proto
+// source: image_storage.proto
 
-package pb
+package v1
 
 import (
 	context "context"
@@ -35,7 +35,7 @@ func NewImageStorageClient(cc grpc.ClientConnInterface) ImageStorageClient {
 
 func (c *imageStorageClient) GetImage(ctx context.Context, in *ImageStorageRequest, opts ...grpc.CallOption) (*ImageStorageResponse, error) {
 	out := new(ImageStorageResponse)
-	err := c.cc.Invoke(ctx, "/storage.ImageStorage/GetImage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gateway.ImageStorage/GetImage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _ImageStorage_GetImage_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/storage.ImageStorage/GetImage",
+		FullMethod: "/gateway.ImageStorage/GetImage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ImageStorageServer).GetImage(ctx, req.(*ImageStorageRequest))
@@ -92,7 +92,7 @@ func _ImageStorage_GetImage_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ImageStorage_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "storage.ImageStorage",
+	ServiceName: "gateway.ImageStorage",
 	HandlerType: (*ImageStorageServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -101,5 +101,5 @@ var ImageStorage_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "pb/image_storage.proto",
+	Metadata: "image_storage.proto",
 }
