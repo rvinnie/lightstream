@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/rvinnie/lightstream/services/storage/pb"
+	pb "github.com/rvinnie/lightstream/services/storage/pb"
 	"google.golang.org/grpc"
 	"net"
 )
@@ -19,8 +19,8 @@ func NewServer(imageStorageHandler pb.ImageStorageServer) *Server {
 	}
 }
 
-func (s *Server) ListenAndServe(port string) error {
-	addr := fmt.Sprintf(":%s", port)
+func (s *Server) ListenAndServe(host string, port string) error {
+	addr := fmt.Sprintf("%s:%s", host, port)
 
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {

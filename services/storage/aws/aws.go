@@ -8,12 +8,17 @@ import (
 )
 
 type AWS interface {
-	DownloadObject(path string) ([]byte, error)
+	DownloadObject(path string) (*AWSStorageObject, error)
 }
 
 type AWSManager struct {
 	bucketName string
 	client     *s3.Client
+}
+
+type AWSStorageObject struct {
+	Body        []byte
+	ContentType string
 }
 
 func NewAWSManager(bucketName string, awsCfg aws.Config) *AWSManager {
@@ -25,14 +30,14 @@ func NewAWSManager(bucketName string, awsCfg aws.Config) *AWSManager {
 	}
 }
 
-func (m *AWSManager) DownloadObject(path string) ([]byte, error) {
+func (m *AWSManager) DownloadObject(path string) (*AWSStorageObject, error) {
 	// Getting object info
 	objectInfo, err := m.client.HeadObject(context.TODO(), &s3.HeadObjectInput{
 		Bucket: aws.String(m.bucketName),
 		Key:    aws.String(path),
 	})
 	if err != nil {
-		return nil, err
+		return &AWSStorageObject{}, err
 	}
 
 	// Creating an object to be returned
@@ -46,5 +51,8 @@ func (m *AWSManager) DownloadObject(path string) ([]byte, error) {
 		Key:    aws.String(path),
 	})
 
-	return body, err
+	return &AWSStorageObject{
+		Body:        body,
+		ContentType: *objectInfo.ContentType,
+	}, err
 }
