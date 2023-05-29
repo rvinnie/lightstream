@@ -23,15 +23,13 @@ func main() {
 
 	// Initializing env variables
 	if err := godotenv.Load(); err != nil {
-		logrus.Error("Error loading .env file")
-		return
+		logrus.Fatal("Error loading .env file")
 	}
 
 	//Initializing config
 	cfg, err := config.InitConfig(configPath)
 	if err != nil {
-		logrus.Error("Unable to parse config", err)
-		return
+		logrus.Fatal("Unable to parse config", err)
 	}
 
 	// Creating AWS manager
@@ -43,19 +41,18 @@ func main() {
 	// Creating gRPC server
 	grpcServer := grpc.NewServer(grpcHandler)
 	go func() {
-		logrus.Info("Starting storage microservice")
-		if err = grpcServer.ListenAndServe(cfg.GRPC.Port); err != nil {
-			logrus.Fatalf("error occured while running grpc server: %s", err.Error())
+		if err = grpcServer.ListenAndServe(cfg.GRPC.Host, cfg.GRPC.Port); err != nil {
+			logrus.Fatalf("error occured while running storage (gRPC) server: %s", err.Error())
 		}
 	}()
-	logrus.Info("Storage microservice is running")
+	logrus.Info("Storage (gRPC) server is running")
 
 	// Gracefull shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM)
 
 	<-quit
-	logrus.Info("Storage microservice shutting down")
+	logrus.Info("Storage (gRPC) server shutting down")
 
 	grpcServer.Stop()
 }
