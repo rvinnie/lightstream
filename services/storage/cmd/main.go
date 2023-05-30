@@ -1,13 +1,14 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/rvinnie/lightstream/services/storage/aws"
 	"github.com/rvinnie/lightstream/services/storage/config"
 	"github.com/rvinnie/lightstream/services/storage/transport/grpc"
 	"github.com/rvinnie/lightstream/services/storage/transport/grpc/handler"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ func main() {
 	// Creating gRPC server
 	grpcServer := grpc.NewServer(grpcHandler)
 	go func() {
-		if err = grpcServer.ListenAndServe(cfg.GRPC.Host, cfg.GRPC.Port); err != nil {
+		if err = grpcServer.ListenAndServe(cfg.GRPC.Port); err != nil {
 			logrus.Fatalf("error occured while running storage (gRPC) server: %s", err.Error())
 		}
 	}()
