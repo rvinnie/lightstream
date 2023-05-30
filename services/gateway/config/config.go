@@ -1,15 +1,17 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"os"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
-	HTTP HTTPConfig
-	GRPC GRPCConfig
-	GIN  GINConfig
+	HTTP     HTTPConfig
+	GRPC     GRPCConfig
+	Postgres PostgresConfig
+	GIN      GINConfig
 }
 
 type HTTPConfig struct {
@@ -22,6 +24,14 @@ type HTTPConfig struct {
 type GRPCConfig struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
+}
+
+type PostgresConfig struct {
+	Username string
+	Password string
+	Host     string
+	Port     string
+	DBName   string
 }
 
 type GINConfig struct {
@@ -50,4 +60,8 @@ func InitConfig(configDir string) (*Config, error) {
 
 func setEnvVariables(cfg *Config) {
 	cfg.GIN.Mode = os.Getenv("GIN_MODE")
+	cfg.Postgres.Username = os.Getenv("POSTGRES_USER")
+	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
+	cfg.Postgres.Host = os.Getenv("DATABASE_HOST")
+	cfg.Postgres.DBName = os.Getenv("POSTGRES_DB")
 }

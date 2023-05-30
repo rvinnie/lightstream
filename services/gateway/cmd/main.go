@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/rvinnie/lightstream/services/gateway/repository"
+	"github.com/rvinnie/lightstream/services/gateway/service"
 	"github.com/rvinnie/lightstream/services/gateway/transport/rest"
 	"github.com/rvinnie/lightstream/services/gateway/transport/rest/handler"
 	"google.golang.org/grpc"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/rvinnie/lightstream/services/gateway/config"
+	"github.com/rvinnie/lightstream/services/gateway/database/postgres"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +40,20 @@ func main() {
 		logrus.Fatal("Unable to parse config", err)
 	}
 
+	// Initializing postgres
+	db, err := postgres.NewConnPool(postgres.DBConfig{
+		Username: cfg.Postgres.Username,
+		Password: cfg.Postgres.Password,
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		DBName:   cfg.Postgres.DBName,
+	})
+	if err != nil {
+		logrus.Errorf("Unable to connect db: %v", err)
+		return
+	}
+	defer db.Close()
+
 	// Initializing gRPC connection
 	grpcTarget := fmt.Sprintf("%s:%s", cfg.GRPC.Host, cfg.GRPC.Port)
 	grpcConn, err := grpc.Dial(grpcTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -45,9 +62,11 @@ func main() {
 	}
 	defer grpcConn.Close()
 
-	handlers := handler.NewHandler(grpcConn)
-	restServer := rest.NewServer(cfg, handlers.InitRoutes(*cfg))
+	imagesRepository := repository.NewImagesPostgres(db)
+	imagesService := service.NewImagesService(imagesRepository)
+	imagesHandler := handler.NewImagesHandler(grpcConn, imagesService)
 
+	restServer := rest.NewServer(cfg, imagesHandler.InitRoutes(*cfg))
 	go func() {
 		if err = restServer.Run(); err != http.ErrServerClosed {
 			logrus.Fatalf("error occured while running gateway (HTTP) server: %s", err.Error())
