@@ -1,13 +1,27 @@
 version: '3'
 services:
-  video-streaming:
-    image: video-streaming
+  gateway:
+    image: gateway
     build:
-      context: ./services/streaming
+      context: ./services/gateway
       dockerfile: Dockerfile
-    container_name: video-streaming
+    container_name: gateway
     ports:
       - "8080:8080"
     env_file:
-      - ./services/streaming/.env
+      - ./services/gateway/.env
+    depends_on:
+      - storage
+    restart: "no"
+
+  storage:
+    image: storage
+    build:
+      context: ./services/storage
+      dockerfile: Dockerfile
+    container_name: storage
+    ports:
+      - "4040:4040"
+    env_file:
+      - ./services/storage/.env
     restart: "no"

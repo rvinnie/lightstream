@@ -3,15 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/rvinnie/lightstream/services/gateway/transport/rest"
-	"github.com/rvinnie/lightstream/services/gateway/transport/rest/handler"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/rvinnie/lightstream/services/gateway/transport/rest"
+	"github.com/rvinnie/lightstream/services/gateway/transport/rest/handler"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/joho/godotenv"
 	"github.com/rvinnie/lightstream/services/gateway/config"
@@ -36,8 +36,6 @@ func main() {
 	if err != nil {
 		logrus.Fatal("Unable to parse config", err)
 	}
-
-	gin.SetMode(cfg.GIN.Mode)
 
 	// Initializing gRPC connection
 	grpcTarget := fmt.Sprintf("%s:%s", cfg.GRPC.Host, cfg.GRPC.Port)

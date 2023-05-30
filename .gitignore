@@ -1,8 +1,8 @@
 .idea
 .DS_Store
 
-services/streaming/.bin
-services/streaming/.env
+services/gateway/.bin
+services/gateway/.env
 
 services/storage/.bin
 services/storage/.env

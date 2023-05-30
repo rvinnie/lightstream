@@ -3,12 +3,13 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rvinnie/lightstream/services/gateway/config"
 	pb "github.com/rvinnie/lightstream/services/gateway/pb"
 	"google.golang.org/grpc"
-	"net/http"
-	"strings"
 )
 
 const (
