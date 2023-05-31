@@ -12,7 +12,7 @@ const (
 )
 
 type Images interface {
-	GetById(ctx context.Context, id string) (string, error)
+	GetById(ctx context.Context, id int) (string, error)
 }
 
 type ImagesPostgres struct {
@@ -23,7 +23,7 @@ func NewImagesPostgres(db *pgxpool.Pool) *ImagesPostgres {
 	return &ImagesPostgres{db: db}
 }
 
-func (r *ImagesPostgres) GetById(ctx context.Context, id string) (string, error) {
+func (r *ImagesPostgres) GetById(ctx context.Context, id int) (string, error) {
 	query := fmt.Sprintf("SELECT path FROM %s WHERE id = $1", imagesCollection)
 	row := r.db.QueryRow(ctx, query, id)
 

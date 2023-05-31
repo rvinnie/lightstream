@@ -8,6 +8,8 @@ services:
     env_file:
       - ./services/gateway/.env
     restart: always
+    volumes:
+      - ./services/gateway/database/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
   storage:
     image: storage

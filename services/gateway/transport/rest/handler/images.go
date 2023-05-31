@@ -1,17 +1,15 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rvinnie/lightstream/services/gateway/config"
 	pb "github.com/rvinnie/lightstream/services/gateway/pb"
 	"github.com/rvinnie/lightstream/services/gateway/service"
 	"google.golang.org/grpc"
-)
-
-const (
-	imageStorageFolder = "images"
 )
 
 type ImagesHandler struct {
@@ -37,14 +35,13 @@ func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 
 func (h *ImagesHandler) image(c *gin.Context) {
 	param := c.Param("path")
-	// if !isImage(param) {
-	// 	c.AbortWithError(http.StatusBadRequest, errors.New("file is not an image (unavailable image extension)"))
-	// 	return
-	// }
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, errors.New("invalid path"))
+		return
+	}
 
-	//path := fmt.Sprintf("%s/%s", imageStorageFolder, param)
-	//path := h.
-	path, err := h.imagesService.GetById(c, param)
+	path, err := h.imagesService.GetById(c, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -59,25 +56,3 @@ func (h *ImagesHandler) image(c *gin.Context) {
 
 	c.Data(http.StatusOK, resp.ContentType, resp.Image)
 }
-
-// func isImage(param string) bool {
-// 	exts := []string{
-// 		"gif", "jpeg", "jpg", "pjpeg", "jfif", "pjp", "png", "apng",
-// 		"avif", "svg", "webp", "tiff", "tif", "bmp", "ico", "cur",
-// 	}
-
-// 	splittedParam := strings.Split(param, ".")
-// 	countOfPieces := len(splittedParam)
-// 	ext := splittedParam[countOfPieces-1]
-
-// 	if countOfPieces < 2 {
-// 		return false
-// 	}
-
-// 	for _, curExt := range exts {
-// 		if curExt == ext {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }

@@ -10,10 +10,14 @@ type ImagesService struct {
 	repo repository.Images
 }
 
+type Images interface {
+	GetById(ctx context.Context, id int) (string, error)
+}
+
 func NewImagesService(repo repository.Images) *ImagesService {
 	return &ImagesService{repo: repo}
 }
 
-func (s *ImagesService) GetById(ctx context.Context, id string) (string, error) {
+func (s *ImagesService) GetById(ctx context.Context, id int) (string, error) {
 	return s.repo.GetById(ctx, id)
 }
