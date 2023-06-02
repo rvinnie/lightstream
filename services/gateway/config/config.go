@@ -11,6 +11,7 @@ type Config struct {
 	HTTP     HTTPConfig
 	GRPC     GRPCConfig
 	Postgres PostgresConfig
+	RabbitMQ RabbitMQConfig
 	GIN      GINConfig
 }
 
@@ -34,6 +35,13 @@ type PostgresConfig struct {
 	DBName   string
 }
 
+type RabbitMQConfig struct {
+	Username string
+	Password string
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+}
+
 type GINConfig struct {
 	Mode string
 }
@@ -52,6 +60,9 @@ func InitConfig(configDir string) (*Config, error) {
 	if err := viper.UnmarshalKey("gRPC", &cfg.GRPC); err != nil {
 		return nil, err
 	}
+	if err := viper.UnmarshalKey("rabbit", &cfg.RabbitMQ); err != nil {
+		return nil, err
+	}
 
 	setEnvVariables(&cfg)
 
@@ -64,4 +75,7 @@ func setEnvVariables(cfg *Config) {
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
 	cfg.Postgres.Host = os.Getenv("DATABASE_HOST")
 	cfg.Postgres.DBName = os.Getenv("POSTGRES_DB")
+
+	cfg.RabbitMQ.Username = os.Getenv("RABBIT_USER")
+	cfg.RabbitMQ.Password = os.Getenv("RABBIT_PASSWORD")
 }

@@ -7,3 +7,7 @@ http:
 gRPC:
   host: storage
   port: 4040
+
+rabbit:
+  host: rabbit
+  port: 5672

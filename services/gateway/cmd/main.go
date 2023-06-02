@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/rvinnie/lightstream/services/gateway/database/postgres"
+	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,8 +18,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/joho/godotenv"
+
 	"github.com/rvinnie/lightstream/services/gateway/config"
-	"github.com/rvinnie/lightstream/services/gateway/database/postgres"
 	"github.com/sirupsen/logrus"
 )
 
@@ -54,6 +56,19 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initializing RabbitMQ producer
+	rabbitProducer, err := amqp.NewProducer(amqp.ProducerConfig{
+		Username: cfg.RabbitMQ.Username,
+		Password: cfg.RabbitMQ.Password,
+		Host:     cfg.RabbitMQ.Host,
+		Port:     cfg.RabbitMQ.Port,
+	})
+	if err != nil {
+		logrus.Errorf("Unable to create RabbitMQ producer: %v", err)
+		return
+	}
+	logrus.Info("History RabbitMQ (AMQP) producer is created")
+
 	// Initializing gRPC connection
 	grpcTarget := fmt.Sprintf("%s:%s", cfg.GRPC.Host, cfg.GRPC.Port)
 	grpcConn, err := grpc.Dial(grpcTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -61,10 +76,11 @@ func main() {
 		logrus.Fatal(err)
 	}
 	defer grpcConn.Close()
+	logrus.Info("Storage (gRPC) client is created")
 
 	imagesRepository := repository.NewImagesPostgres(db)
 	imagesService := service.NewImagesService(imagesRepository)
-	imagesHandler := handler.NewImagesHandler(grpcConn, imagesService)
+	imagesHandler := handler.NewImagesHandler(grpcConn, imagesService, rabbitProducer)
 
 	restServer := rest.NewServer(cfg, imagesHandler.InitRoutes(*cfg))
 	go func() {
@@ -80,8 +96,12 @@ func main() {
 
 	<-quit
 
-	logrus.Info("Gateway (HTTP) server shutting down")
+	logrus.Info("History RabbitMQ (AMQP) producer shutting down")
+	if err = rabbitProducer.Shutdown(); err != nil {
+		logrus.Errorf("Error on history RabbitMQ (AMQP) producer shutting down: %s", err.Error())
+	}
 
+	logrus.Info("Gateway (HTTP) server shutting down")
 	if err = restServer.Stop(context.Background()); err != nil {
 		logrus.Errorf("Error on gateway (HTTP) server shutting down: %s", err.Error())
 	}

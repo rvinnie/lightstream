@@ -1,14 +1,22 @@
-version: '3'
+version: '3.9'
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:15.3-alpine
     container_name: postgres
     ports:
       - "5432:5432"
     env_file:
       - ./services/gateway/.env
     volumes:
-      - ./services/gateway/database/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./scripts/database/gateway/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    restart: always
+
+  rabbit:
+    image: rabbitmq:3.11.17-management-alpine
+    container_name: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     restart: always
 
   storage:
@@ -23,6 +31,20 @@ services:
       - ./services/storage/.env
     volumes:
       - ./services/storage/:/usr/src/app
+    restart: "no"
+
+  history:
+    image: history
+    build:
+      context: ./services/history
+      dockerfile: dev.Dockerfile
+    container_name: history
+    env_file:
+      - ./services/history/.env
+    volumes:
+      - ./services/history/:/usr/src/app
+    depends_on:
+      - rabbit
     restart: "no"
     
   gateway:
@@ -39,5 +61,7 @@ services:
       - ./services/gateway/:/usr/src/app
     depends_on:
       - postgres
+      - rabbit
       - storage
+      - history
     restart: "no"
