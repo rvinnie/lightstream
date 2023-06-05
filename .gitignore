@@ -1,8 +1,11 @@
 .idea
-.DS_Store
+*/.DS_Store
 
 services/gateway/.bin
 services/gateway/.env
+
+services/history/.bin
+services/history/.env
 
 services/storage/.bin
 services/storage/.env

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"strconv"
 
@@ -15,12 +16,14 @@ import (
 type ImagesHandler struct {
 	imageStorageClient pb.ImageStorageClient
 	imagesService      *service.ImagesService
+	rabbitProducer     *amqp.Producer
 }
 
-func NewImagesHandler(grpcConn grpc.ClientConnInterface, imagesService *service.ImagesService) *ImagesHandler {
+func NewImagesHandler(grpcConn grpc.ClientConnInterface, imagesService *service.ImagesService, rabbitProducer *amqp.Producer) *ImagesHandler {
 	return &ImagesHandler{
 		imageStorageClient: pb.NewImageStorageClient(grpcConn),
 		imagesService:      imagesService,
+		rabbitProducer:     rabbitProducer,
 	}
 }
 
@@ -52,6 +55,11 @@ func (h *ImagesHandler) image(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
+	}
+
+	err = h.rabbitProducer.Publish("msg from producer: " + resp.ContentType)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 
 	c.Data(http.StatusOK, resp.ContentType, resp.Image)
