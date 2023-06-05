@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/rvinnie/lightstream/services/gateway/database/postgres"
+	postgres "github.com/rvinnie/lightstream/pkg/database"
+
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"os"

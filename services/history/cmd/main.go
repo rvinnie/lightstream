@@ -1,6 +1,7 @@
 package main
 
 import (
+	postgres "github.com/rvinnie/lightstream/pkg/database"
 	"github.com/rvinnie/lightstream/services/history/transport/amqp"
 	"os"
 	"os/signal"
@@ -31,18 +32,18 @@ func main() {
 	}
 
 	// Initializing postgres
-	//db, err := postgres.NewConnPool(postgres.DBConfig{
-	//	Username: cfg.Postgres.Username,
-	//	Password: cfg.Postgres.Password,
-	//	Host:     cfg.Postgres.Host,
-	//	Port:     cfg.Postgres.Port,
-	//	DBName:   cfg.Postgres.DBName,
-	//})
-	//if err != nil {
-	//	logrus.Errorf("Unable to connect db: %v", err)
-	//	return
-	//}
-	//defer db.Close()
+	db, err := postgres.NewConnPool(postgres.DBConfig{
+		Username: cfg.Postgres.Username,
+		Password: cfg.Postgres.Password,
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		DBName:   cfg.Postgres.DBName,
+	})
+	if err != nil {
+		logrus.Errorf("Unable to connect db: %v", err)
+		return
+	}
+	defer db.Close()
 
 	// Initializing RabbitMQ consumer
 	consumer, err := amqp.NewConsumer(amqp.ConsumerConfig{
