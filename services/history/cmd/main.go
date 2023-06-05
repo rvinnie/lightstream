@@ -2,6 +2,8 @@ package main
 
 import (
 	postgres "github.com/rvinnie/lightstream/pkg/database"
+	"github.com/rvinnie/lightstream/services/history/repository"
+	"github.com/rvinnie/lightstream/services/history/service"
 	"github.com/rvinnie/lightstream/services/history/transport/amqp"
 	"os"
 	"os/signal"
@@ -45,13 +47,16 @@ func main() {
 	}
 	defer db.Close()
 
+	notificationsRepository := repository.NewNotificationsPostgres(db)
+	notificationsService := service.NewNotificationsService(notificationsRepository)
+
 	// Initializing RabbitMQ consumer
 	consumer, err := amqp.NewConsumer(amqp.ConsumerConfig{
 		Username: cfg.RabbitMQ.Username,
 		Password: cfg.RabbitMQ.Password,
 		Host:     cfg.RabbitMQ.Host,
 		Port:     cfg.RabbitMQ.Port,
-	})
+	}, notificationsService)
 	if err != nil {
 		logrus.Errorf("Unable to create RabbitMQ consumer: %v", err)
 		return
