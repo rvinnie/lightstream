@@ -16,6 +16,7 @@ type DBConfig struct {
 }
 
 func NewConnPool(dbConfig DBConfig) (*pgxpool.Pool, error) {
+
 	databaseUrl := formUrl("postgres", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DBName)
 	dbPool, err := pgxpool.New(context.Background(), databaseUrl)
 	if err != nil {
