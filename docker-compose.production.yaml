@@ -34,7 +34,7 @@ services:
     image: storage
     build:
       context: ./services/storage
-      dockerfile: dev.Dockerfile
+      dockerfile: prod.Dockerfile
     container_name: storage
     ports:
       - "4040:4040"
@@ -48,7 +48,7 @@ services:
     image: history
     build:
       context: ./services/history
-      dockerfile: dev.Dockerfile
+      dockerfile: prod.Dockerfile
     container_name: history
     env_file:
       - ./services/history/.env
@@ -63,7 +63,7 @@ services:
     image: gateway
     build:
       context: ./services/gateway
-      dockerfile: dev.Dockerfile
+      dockerfile: prod.Dockerfile
     container_name: gateway
     ports:
       - "8080:8080"

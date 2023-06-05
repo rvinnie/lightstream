@@ -1,4 +1,8 @@
-DOCKER_COMPOSE_FILE = docker-compose.yaml
+ifeq ($(version), production)
+        DOCKER_COMPOSE_FILE = docker-compose.production.yaml
+else
+        DOCKER_COMPOSE_FILE = docker-compose.yaml
+endif
 
 up:
 	docker-compose -f ${DOCKER_COMPOSE_FILE} up --build
