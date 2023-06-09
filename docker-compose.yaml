@@ -77,3 +77,21 @@ services:
       - storage
       - history
     restart: "no"
+
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - gateway
+
+  grafana:
+    image: grafana/grafana:9.3.6
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

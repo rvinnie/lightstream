@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"strconv"
@@ -31,6 +32,7 @@ func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 	gin.SetMode(cfg.GIN.Mode)
 	router := gin.New()
 
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/image/:path", h.image)
 
 	return router
