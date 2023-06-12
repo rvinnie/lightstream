@@ -84,7 +84,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - gateway
 
@@ -92,6 +92,8 @@ services:
     image: grafana/grafana:9.3.6
     container_name: grafana
     ports:
-      - "3000:3000"
+        - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/grafana.db:/var/lib/grafana/grafana.db
     depends_on:
       - prometheus
