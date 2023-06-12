@@ -57,7 +57,7 @@ func (h *ImagesHandler) image(c *gin.Context) {
 		return
 	}
 
-	err = h.rabbitProducer.Publish("msg from producer: " + resp.ContentType)
+	err = h.rabbitProducer.Publish(id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}

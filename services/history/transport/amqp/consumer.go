@@ -1,10 +1,17 @@
 package amqp
 
 import (
-	"fmt"
+	"context"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/rvinnie/lightstream/services/history/service"
 	"net"
 	"net/url"
+)
+
+const (
+	exchangeName = "history"
+	exchangeKind = "fanout"
+	queueName    = ""
 )
 
 type ConsumerConfig struct {
@@ -17,13 +24,16 @@ type ConsumerConfig struct {
 type Consumer struct {
 	conn *amqp091.Connection
 	ch   *amqp091.Channel
+
+	notificationsService service.Notifications
 }
 
-// TODO: Change params of exchange and queue; add comments
-
-func NewConsumer(config ConsumerConfig) (*Consumer, error) {
+func NewConsumer(config ConsumerConfig, notificationsService service.Notifications) (*Consumer, error) {
 	var err error
 	c := &Consumer{}
+
+	c.notificationsService = notificationsService
+
 	url := formUrl("amqp", config.Username, config.Password, config.Host, config.Port)
 
 	c.conn, err = amqp091.Dial(url)
@@ -36,13 +46,13 @@ func NewConsumer(config ConsumerConfig) (*Consumer, error) {
 		return c, err
 	}
 
-	err = c.ch.ExchangeDeclare("history-direct", "direct", true, false, false, false, nil)
+	err = c.ch.ExchangeDeclare(exchangeName, exchangeKind, true, false, false, false, nil)
 	if err != nil {
 		return c, err
 	}
 
-	q, err := c.ch.QueueDeclare(
-		"",
+	_, err = c.ch.QueueDeclare(
+		queueName,
 		false,
 		false,
 		true,
@@ -54,9 +64,9 @@ func NewConsumer(config ConsumerConfig) (*Consumer, error) {
 	}
 
 	err = c.ch.QueueBind(
-		q.Name,
-		"info",
-		"history-direct",
+		queueName,
+		"",
+		exchangeName,
 		false,
 		nil,
 	)
@@ -69,9 +79,9 @@ func NewConsumer(config ConsumerConfig) (*Consumer, error) {
 
 func (c *Consumer) Consume() error {
 	deliveries, err := c.ch.Consume(
+		queueName,
 		"",
-		"",
-		false,
+		true,
 		false,
 		false,
 		false,
@@ -83,7 +93,7 @@ func (c *Consumer) Consume() error {
 
 	go func() {
 		for d := range deliveries {
-			fmt.Printf("Received a message: %s\n", d.Body)
+			c.notificationsService.Create(context.Background(), string(d.Body))
 		}
 	}()
 
