@@ -37,6 +37,7 @@ func NewImagesHandler(grpcConn grpc.ClientConnInterface, imagesService *service.
 func PrometheusMiddleware(metrics *monitoring.Metrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
+		metrics.ConcurrentRequests.Inc()
 		method := c.Request.Method
 		url := c.Request.URL.Path
 
@@ -47,6 +48,7 @@ func PrometheusMiddleware(metrics *monitoring.Metrics) gin.HandlerFunc {
 
 		c.Next()
 
+		metrics.ConcurrentRequests.Dec()
 		statusCode := c.Writer.Status()
 		duration := time.Since(start).Seconds()
 		metrics.CollectMetrics(method, url, statusCode, duration)
@@ -59,6 +61,9 @@ func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 	router.Use(PrometheusMiddleware(h.metrics))
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(http.StatusOK, "pong")
+	})
 	router.GET("/image/:path", h.image)
 
 	return router

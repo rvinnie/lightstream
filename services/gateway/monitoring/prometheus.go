@@ -5,12 +5,22 @@ import (
 	"strconv"
 )
 
+const (
+	defaultHttpConcurrentRequestsMax = 20
+)
+
 type Metrics struct {
-	RequestsTotal    *prometheus.CounterVec
-	RequestsDuration *prometheus.HistogramVec
+	RequestsTotal         *prometheus.CounterVec
+	RequestsDuration      *prometheus.HistogramVec
+	ConcurrentRequests    prometheus.Gauge
+	ConcurrentRequestsMax prometheus.Gauge
 }
 
-func CreateMetrics() *Metrics {
+func CreateMetrics(httpConcurrentRequestsMax float64) *Metrics {
+	if httpConcurrentRequestsMax == 0 {
+		httpConcurrentRequestsMax = defaultHttpConcurrentRequestsMax
+	}
+
 	metrics := Metrics{}
 
 	metrics.RequestsTotal = prometheus.NewCounterVec(
@@ -30,8 +40,25 @@ func CreateMetrics() *Metrics {
 		[]string{"method", "url", "code"},
 	)
 
+	metrics.ConcurrentRequests = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "http_concurrent_requests",
+			Help: "The number of inflight requests",
+		},
+	)
+
+	metrics.ConcurrentRequestsMax = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "http_concurrent_requests_max",
+		},
+	)
+
+	metrics.ConcurrentRequestsMax.Set(httpConcurrentRequestsMax)
+
 	prometheus.MustRegister(metrics.RequestsTotal)
 	prometheus.MustRegister(metrics.RequestsDuration)
+	prometheus.MustRegister(metrics.ConcurrentRequests)
+	prometheus.MustRegister(metrics.ConcurrentRequestsMax)
 
 	return &metrics
 }

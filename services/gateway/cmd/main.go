@@ -5,7 +5,6 @@ import (
 	"fmt"
 	postgres "github.com/rvinnie/lightstream/pkg/database"
 	"github.com/rvinnie/lightstream/services/gateway/monitoring"
-
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"os"
@@ -81,7 +80,7 @@ func main() {
 	logrus.Info("Storage (gRPC) client is created")
 
 	// Initializing Prometheus
-	metrics := monitoring.CreateMetrics()
+	metrics := monitoring.CreateMetrics(cfg.Prometheus.MaxConcurrentRequests)
 
 	imagesRepository := repository.NewImagesPostgres(db)
 	imagesService := service.NewImagesService(imagesRepository)

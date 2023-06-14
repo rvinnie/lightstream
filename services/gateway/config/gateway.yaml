@@ -11,3 +11,6 @@ gRPC:
 rabbit:
   host: rabbit
   port: 5672
+
+prometheus:
+  maxConcurrentRequests: 20.0
