@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	HTTP     HTTPConfig
-	GRPC     GRPCConfig
-	Postgres PostgresConfig
-	RabbitMQ RabbitMQConfig
-	GIN      GINConfig
+	HTTP       HTTPConfig
+	GRPC       GRPCConfig
+	Postgres   PostgresConfig
+	RabbitMQ   RabbitMQConfig
+	Prometheus PrometheusConfig
+	GIN        GINConfig
 }
 
 type HTTPConfig struct {
@@ -42,6 +43,10 @@ type RabbitMQConfig struct {
 	Port     string `yaml:"port"`
 }
 
+type PrometheusConfig struct {
+	MaxConcurrentRequests float64 `yaml:"maxConcurrentRequests"`
+}
+
 type GINConfig struct {
 	Mode string
 }
@@ -61,6 +66,9 @@ func InitConfig(configDir string) (*Config, error) {
 		return nil, err
 	}
 	if err := viper.UnmarshalKey("rabbit", &cfg.RabbitMQ); err != nil {
+		return nil, err
+	}
+	if err := viper.UnmarshalKey("prometheus", &cfg.Prometheus); err != nil {
 		return nil, err
 	}
 

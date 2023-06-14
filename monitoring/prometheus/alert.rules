@@ -1,0 +1,27 @@
+groups:
+- name: alert.rules
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instance down"
+      description: "Server {{ $labels.instance }} down"
+  - alert: APIHighRequestLatency
+    expr: sum(rate(gateway_requests_duration_sum{code=~"2..", url!="/metrics"}[15s])) by (url) / sum(rate(gateway_requests_duration_count{code=~"2..", url!="/metrics"}[15s])) by (url) * 1000 > 1000
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High request latency on {{ $labels.instance }}"
+      description: "server has a median request latency above 1s"
+  - alert: APIHighSaturation
+    expr: http_concurrent_requests / http_concurrent_requests_max * 100 > 75
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High saturation on {{ $labels.instance }}"
+      description: "server has a median saturation above 75% (current value: {{ $value }}%)"

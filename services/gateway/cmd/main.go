@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	postgres "github.com/rvinnie/lightstream/pkg/database"
-
+	"github.com/rvinnie/lightstream/services/gateway/monitoring"
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
 	"os"
@@ -79,9 +79,12 @@ func main() {
 	defer grpcConn.Close()
 	logrus.Info("Storage (gRPC) client is created")
 
+	// Initializing Prometheus
+	metrics := monitoring.CreateMetrics(cfg.Prometheus.MaxConcurrentRequests)
+
 	imagesRepository := repository.NewImagesPostgres(db)
 	imagesService := service.NewImagesService(imagesRepository)
-	imagesHandler := handler.NewImagesHandler(grpcConn, imagesService, rabbitProducer)
+	imagesHandler := handler.NewImagesHandler(grpcConn, imagesService, rabbitProducer, metrics)
 
 	restServer := rest.NewServer(cfg, imagesHandler.InitRoutes(*cfg))
 	go func() {
