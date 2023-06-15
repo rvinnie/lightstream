@@ -18,16 +18,16 @@ type ImageStorageService interface {
 type ImageStorageHandler struct {
 	pb.UnimplementedImageStorageServer
 
-	manager aws.AWSManager
+	manager aws.AWS
 	cfg     config.AWSConfig
 }
 
-func NewImageStorageHandler(m aws.AWSManager, cfg config.AWSConfig) *ImageStorageHandler {
+func NewImageStorageHandler(m aws.AWS, cfg config.AWSConfig) *ImageStorageHandler {
 	return &ImageStorageHandler{manager: m, cfg: cfg}
 }
 
 func (h *ImageStorageHandler) CreateImage(ctx context.Context, request *pb.CreateImageRequest) (*emptypb.Empty, error) {
-	err := h.manager.UploadObject(request.Path, request.Image)
+	err := h.manager.UploadObject(request.Path, request.ContentType, request.Image)
 
 	return &emptypb.Empty{}, err
 }
@@ -51,8 +51,8 @@ func (h *ImageStorageHandler) GetImages(ctx context.Context, request *pb.FindIma
 	for _, object := range objects {
 		imageResponse := &pb.FindImageResponse{
 			Name:        object.Name,
-			Image:       object.Body,
 			ContentType: object.ContentType,
+			Image:       object.Body,
 		}
 		imagesResponses = append(imagesResponses, imageResponse)
 	}

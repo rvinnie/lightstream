@@ -37,7 +37,7 @@ func main() {
 	awsManager := aws.NewAWSManager(cfg.AWS.BucketName, cfg.AWS.Config)
 
 	// Creating handlers
-	grpcHandler := handler.NewImageStorageHandler(*awsManager, cfg.AWS)
+	grpcHandler := handler.NewImageStorageHandler(awsManager, cfg.AWS)
 
 	// Creating gRPC server
 	grpcServer := grpc.NewServer(grpcHandler)

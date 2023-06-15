@@ -1,31 +1,28 @@
+const url = 'http://localhost:8080/images/add'
 var bttn = document.getElementById("uploadSubmit");
+var uploadFile = document.getElementById("uploadFile");
 
-function postImage()
+function saveImage()
 {
-    var uploadFile = document.getElementById("uploadFile");
-    var file = uploadFile.files[0];
+    const file = uploadFile.files[0];
 
-    let formData = new FormData();
-    formData.append("file", file);
+    let reader = new FileReader();
+    reader.readAsArrayBuffer(file)
 
-    console.log(file)
+    reader.onload = function() {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': file.type,
+                'Filename': file.name,
+            },
+            body: reader.result
+        };
 
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            name: formData
-        })
-    };
-
-    fetch('https://reqres.in/api/users/23', options)
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(error => console.log('ERROR'))
+        fetch(url, options)
+            .then(res => res.json())
+            .then(data => console.log(data))
+    }
 }
 
-// https://learn.javascript.ru/formdata
-
-bttn.onclick = postImage;
+bttn.onclick = saveImage;

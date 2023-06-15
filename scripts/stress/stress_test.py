@@ -4,7 +4,7 @@ import time
 
 def do_stress():
     while True:
-        path = 'http://gateway:8080/image/%s' % random.randint(0, 2)
+        path = 'http://gateway:8080/images/%s' % random.randint(0, 2)
         try:
             requests.get(path)
         except:

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/gin-contrib/cors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvinnie/lightstream/services/gateway/monitoring"
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
@@ -64,6 +65,11 @@ func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 	gin.SetMode(cfg.GIN.Mode)
 	router := gin.New()
 	router.Use(PrometheusMiddleware(h.metrics))
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"POST", "GET"},
+		AllowHeaders: []string{"Origin", "Authorization", "Content-Type", "Accept-Encoding", "Filename"},
+	}))
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/ping", func(c *gin.Context) {
@@ -85,7 +91,14 @@ type imageResponse struct {
 
 func (h *ImagesHandler) createImage(c *gin.Context) {
 	data, err := ioutil.ReadAll(c.Request.Body)
+
 	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	contentType := c.Request.Header.Get("Content-Type")
+	if contentType == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -104,8 +117,9 @@ func (h *ImagesHandler) createImage(c *gin.Context) {
 	}
 
 	_, err = h.imageStorageClient.CreateImage(c, &pb.CreateImageRequest{
-		Path:  path,
-		Image: data,
+		Path:        path,
+		ContentType: contentType,
+		Image:       data,
 	})
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
