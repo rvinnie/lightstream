@@ -5,6 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvinnie/lightstream/services/gateway/monitoring"
 	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
+	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,10 @@ import (
 	pb "github.com/rvinnie/lightstream/services/gateway/pb"
 	"github.com/rvinnie/lightstream/services/gateway/service"
 	"google.golang.org/grpc"
+)
+
+const (
+	imagesDirectoryName = "images"
 )
 
 type ImagesHandler struct {
@@ -64,12 +69,53 @@ func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
-	router.GET("/image/:path", h.image)
+
+	router.GET("/images/:path", h.getImage)
+	router.GET("/images", h.getImages)
+	router.POST("/images/add", h.createImage)
 
 	return router
 }
 
-func (h *ImagesHandler) image(c *gin.Context) {
+type imageResponse struct {
+	Name        string `json:"name"`
+	ContentType string `json:"contentType"`
+	Data        []byte `json:"data"`
+}
+
+func (h *ImagesHandler) createImage(c *gin.Context) {
+	data, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	filename := c.Request.Header.Get("Filename")
+	if filename == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	path := imagesDirectoryName + "/" + filename
+	id, err := h.imagesService.Create(c, path)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = h.imageStorageClient.CreateImage(c, &pb.CreateImageRequest{
+		Path:  path,
+		Image: data,
+	})
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusCreated, id)
+}
+
+func (h *ImagesHandler) getImage(c *gin.Context) {
 	param := c.Param("path")
 	id, err := strconv.Atoi(param)
 	if err != nil {
@@ -83,8 +129,7 @@ func (h *ImagesHandler) image(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.imageStorageClient.GetImage(c, &pb.ImageStorageRequest{Path: path})
-
+	resp, err := h.imageStorageClient.GetImage(c, &pb.FindImageRequest{Path: path})
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -96,5 +141,35 @@ func (h *ImagesHandler) image(c *gin.Context) {
 		return
 	}
 
+	//c.JSON(http.StatusOK, imageResponse{
+	//	Name:        resp.Name,
+	//	ContentType: resp.ContentType,
+	//	Data:        resp.Image,
+	//})
 	c.Data(http.StatusOK, resp.ContentType, resp.Image)
+}
+
+func (h *ImagesHandler) getImages(c *gin.Context) {
+	paths, err := h.imagesService.GetAll(c)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := h.imageStorageClient.GetImages(c, &pb.FindImagesRequest{Paths: paths})
+	if err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	var images []imageResponse
+	for _, image := range resp.GetImages() {
+		images = append(images, imageResponse{
+			Name:        image.Name,
+			ContentType: image.ContentType,
+			Data:        image.Image,
+		})
+	}
+
+	c.JSON(http.StatusOK, images)
 }

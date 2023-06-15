@@ -1,18 +1,36 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/rvinnie/lightstream/api/proto/v1";
 
 package gateway;
 
 service ImageStorage {
-  rpc GetImage (ImageStorageRequest) returns (ImageStorageResponse) {}
+  rpc CreateImage (CreateImageRequest) returns (google.protobuf.Empty) {}
+  rpc GetImage (FindImageRequest) returns (FindImageResponse) {}
+  rpc GetImages (FindImagesRequest) returns (FindImagesResponse) {}
 }
 
-message ImageStorageRequest {
+message CreateImageRequest {
+  string path = 1;
+  bytes image = 2;
+}
+
+message FindImageRequest {
   string path = 1;
 }
 
-message ImageStorageResponse {
-  bytes image = 1;
+message FindImagesRequest {
+  repeated string paths = 1;
+}
+
+message FindImageResponse {
+  string name = 1;
   string contentType = 2;
+  bytes image = 3;
+}
+
+message FindImagesResponse {
+  repeated FindImageResponse images = 1;
 }
