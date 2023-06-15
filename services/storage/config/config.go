@@ -3,31 +3,25 @@ package config
 import (
 	"context"
 	"fmt"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/viper"
-	"os"
 )
 
 type Config struct {
 	GRPC GRPCConfig
 	AWS  AWSConfig
-	GIN  GINConfig
 }
 
 type GRPCConfig struct {
-	Host string `yaml:"host"`
 	Port string `yaml:"port"`
 }
 
 type AWSConfig struct {
 	BucketName string `yaml:"bucketName"`
 	Config     aws.Config
-}
-
-type GINConfig struct {
-	Mode string
 }
 
 func InitConfig(configDir string) (*Config, error) {
@@ -49,8 +43,6 @@ func InitConfig(configDir string) (*Config, error) {
 	if err := loadAWSConfig(&cfg); err != nil {
 		return nil, err
 	}
-
-	setEnvVariables(&cfg)
 
 	return &cfg, nil
 }
@@ -77,8 +69,4 @@ func loadAWSConfig(cfg *Config) error {
 	cfg.AWS.Config = awsCfg
 
 	return err
-}
-
-func setEnvVariables(cfg *Config) {
-	cfg.GIN.Mode = os.Getenv("GIN_MODE")
 }

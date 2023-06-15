@@ -1,6 +1,5 @@
 gRPC:
-  host: localhost
-  port: 8081
+  port: 4040
 
 aws:
   bucketName: "rvinnie-lightstream"

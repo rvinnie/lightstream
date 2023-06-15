@@ -1,0 +1,16 @@
+http:
+  host: 0.0.0.0
+  port: 8080
+  readTimeout: 10s
+  writeTimeout: 10s
+
+gRPC:
+  host: storage
+  port: 4040
+
+rabbit:
+  host: rabbit
+  port: 5672
+
+prometheus:
+  maxConcurrentRequests: 20.0

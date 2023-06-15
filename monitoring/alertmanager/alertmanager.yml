@@ -1,3 +1,11 @@
+global:
+  resolve_timeout: 10s
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 3s
+  group_interval: 10s
+  receiver: 'telegram_bot'
 
 receivers:
   - name: 'telegram_bot'

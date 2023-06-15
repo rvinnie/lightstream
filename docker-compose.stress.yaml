@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  stress:
+    image: stress
+    build:
+      context: ./scripts/stress
+      dockerfile: Dockerfile
+    container_name: stress
+    volumes:
+      - ./scripts/stress:/usr/src/app
+    depends_on:
+      - gateway
+    restart: always
