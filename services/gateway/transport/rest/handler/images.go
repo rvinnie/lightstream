@@ -2,8 +2,14 @@ package handler
 
 import (
 	"errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rvinnie/lightstream/services/gateway/monitoring"
+	"github.com/rvinnie/lightstream/services/gateway/transport/amqp"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"time"
+	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rvinnie/lightstream/services/gateway/config"
@@ -15,19 +21,49 @@ import (
 type ImagesHandler struct {
 	imageStorageClient pb.ImageStorageClient
 	imagesService      *service.ImagesService
+	rabbitProducer     *amqp.Producer
+	metrics            *monitoring.Metrics
 }
 
-func NewImagesHandler(grpcConn grpc.ClientConnInterface, imagesService *service.ImagesService) *ImagesHandler {
+func NewImagesHandler(grpcConn grpc.ClientConnInterface, imagesService *service.ImagesService, rabbitProducer *amqp.Producer, metrics *monitoring.Metrics) *ImagesHandler {
 	return &ImagesHandler{
 		imageStorageClient: pb.NewImageStorageClient(grpcConn),
 		imagesService:      imagesService,
+		rabbitProducer:     rabbitProducer,
+		metrics:            metrics,
+	}
+}
+
+func PrometheusMiddleware(metrics *monitoring.Metrics) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		metrics.ConcurrentRequests.Inc()
+		method := c.Request.Method
+		url := c.Request.URL.Path
+
+		// Truncate resource ids
+		if unicode.IsDigit(rune(url[len(url)-1])) {
+			url = filepath.Dir(url)
+		}
+
+		c.Next()
+
+		metrics.ConcurrentRequests.Dec()
+		statusCode := c.Writer.Status()
+		duration := time.Since(start).Seconds()
+		metrics.CollectMetrics(method, url, statusCode, duration)
 	}
 }
 
 func (h *ImagesHandler) InitRoutes(cfg config.Config) *gin.Engine {
 	gin.SetMode(cfg.GIN.Mode)
 	router := gin.New()
+	router.Use(PrometheusMiddleware(h.metrics))
 
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(http.StatusOK, "pong")
+	})
 	router.GET("/image/:path", h.image)
 
 	return router
@@ -51,6 +87,12 @@ func (h *ImagesHandler) image(c *gin.Context) {
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	err = h.rabbitProducer.Publish(id)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 

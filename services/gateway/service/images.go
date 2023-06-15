@@ -6,12 +6,12 @@ import (
 	"github.com/rvinnie/lightstream/services/gateway/repository"
 )
 
-type ImagesService struct {
-	repo repository.Images
-}
-
 type Images interface {
 	GetById(ctx context.Context, id int) (string, error)
+}
+
+type ImagesService struct {
+	repo repository.Images
 }
 
 func NewImagesService(repo repository.Images) *ImagesService {
