@@ -3,6 +3,6 @@ CREATE TABLE images (
     path character varying(255) NOT NULL
 );
 
-INSERT INTO images (id, path) VALUES
-(1, 'images/eg.jpg'),
-(2, 'images/kapibara.png');
+INSERT INTO images (path) VALUES
+('images/eg.jpg'),
+('images/kapibara.png');
