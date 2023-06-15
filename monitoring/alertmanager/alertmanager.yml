@@ -1,0 +1,13 @@
+
+receivers:
+  - name: 'telegram_bot'
+    telegram_configs:
+      - bot_token: BOT_TOKEN_STRING
+        api_url: 'https://api.telegram.org'
+        chat_id: CHAT_ID_INT
+        send_resolved: true
+        parse_mode: ''
+        message:  "<< {{ .GroupLabels.alertname }} >>\n🔥 Severity: {{ .CommonLabels.severity }}\n📖 Info: {{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
