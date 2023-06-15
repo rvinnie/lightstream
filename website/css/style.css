@@ -1,0 +1,19 @@
+h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+input[type="submit"] {
+    padding: 0.6em 2em
+}
+
+input[type="file"] {
+    display: inline;
+    height: 1.6em;
+}
+
+.upload-form {
+    margin: 0 auto;
+    text-align: center;
+    justify-content: center
+}
+
