@@ -4,20 +4,21 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
-        <link rel="stylesheet" href="css/style.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/style.css">
+
 
         <title>Lightstream</title>
     </head>
     <body>
         <div class="upload-form">
-                <h2> Download your files to Lightstream</h2>
-                <input class="upload-file" id="uploadFile" type="file" name="file" multiple accept="image/*">
-                <input class="upload-button" id="uploadSubmit" type="submit" value="Upload">
+            <h2>Download your images to Lightstream</h2>
+            <input class="upload-file" id="uploadFile" type="file" name="file" multiple accept="image/*">
+            <input class="upload-button" id="uploadSubmit" type="submit" value="Upload">
+            <input class="gallery" type="submit" onclick="window.location.href = 'gallery.html';" value="Go to gallery">
         </div>
-
-    <script src="js/script.js"></script>
     </body>
+    <script src="js/upload.js"></script>
 </html>

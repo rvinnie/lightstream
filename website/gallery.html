@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap" rel="stylesheet">
+
+        <title>Lightstream</title>
+    </head>
+    <body>
+        <div class="search-form">
+            <input class="search" id="search" type="search" name="search" placeholder="Find image">
+            <input class="search-button" id="searchSubmit" type="submit" value="Search">
+            <input class="search-all-button" id="searchAll" type="submit" value="Get all">
+            <input class="gallery" type="submit" onclick="window.location.href = 'index.html';" value="Upload">
+        </div>
+        <div id="imageContainer" class="image-container">
+        </div>
+        <div id="imagesContainer" class="images-container">
+        </div>
+    </body>
+    <script src="js/find.js"></script>
+</html>

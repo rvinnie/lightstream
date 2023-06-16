@@ -1,19 +1,169 @@
 h2 {
     font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 2em;
+    color: #3E54AC;
 }
 
 input[type="submit"] {
+    border-width: 0;
+    background-color: #674188;
     padding: 0.6em 2em
 }
 
 input[type="file"] {
+    background-color: #fff;
+    color: #674188;
     display: inline;
     height: 1.6em;
 }
 
-.upload-form {
+input[type=file]::file-selector-button {
+    height: 1.5em;
+    border-width: 0;
+    background-color: #C3ACD0;
+    color: #3E54AC;
+}
+
+
+input[class="gallery"] {
+    background-color: #655DBB;
+}
+
+input[type="search"] {
+    display: inline;
+    height: 2.7em;
+}
+
+.single-image {
+    margin-top: 3em;
+    width: 50em;
+    object-fit: scale-down;
+}
+
+.image {
+    object-fit: scale-down;
+}
+
+/*858DFC*/
+
+.upload-form, .search-form, .image-container {
     margin: 0 auto;
+    margin-top: 2em;
     text-align: center;
     justify-content: center
 }
 
+.search-form {
+    margin-top: 3em;
+}
+
+.heading {
+    text-align: center;
+    font-size: 2.0em;
+    letter-spacing: 1px;
+    padding: 40px;
+    color: white;
+}
+
+.images-container {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.images-container img {
+    height: 250px;
+    width: 350px;
+    transform: scale(1.0);
+    transition: transform 0.4s ease;
+}
+
+.img-box {
+    box-sizing: content-box;
+    margin: 10px;
+    height: 250px;
+    width: 350px;
+    overflow: hidden;
+    display: inline-block;
+    color: white;
+    position: relative;
+    background-color: white;
+}
+
+.caption {
+    position: absolute;
+    bottom: 5px;
+    left: 20px;
+    opacity: 0.0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.transparent-box {
+    height: 250px;
+    width: 350px;
+    background-color:rgba(0, 0, 0, 0);
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: background-color 0.3s ease;
+}
+
+.img-box:hover img {
+    transform: scale(1.1);
+}
+
+.img-box:hover .transparent-box {
+    background-color:rgba(0, 0, 0, 0.5);
+}
+
+.img-box:hover .caption {
+    transform: translateY(-20px);
+    opacity: 1.0;
+}
+
+.img-box:hover {
+    cursor: pointer;
+}
+
+.caption > p:nth-child(2) {
+    font-size: 0.8em;
+}
+
+.opacity-low {
+    opacity: 0.5;
+}
+
+.drop-container {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #555;
+    color: #444;
+    cursor: pointer;
+    transition: background .2s ease-in-out, border .2s ease-in-out;
+}
+
+.drop-container:hover {
+    background: #C3ACD0;
+    border-color: #3E54AC;
+}
+
+.drop-container:hover .drop-title {
+    color: #3E54AC;
+}
+
+.drop-title {
+    color: #3E54AC;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    transition: color .2s ease-in-out;
+}

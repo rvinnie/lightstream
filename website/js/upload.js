@@ -1,15 +1,14 @@
-const url = 'http://localhost:8080/images/add'
-var bttn = document.getElementById("uploadSubmit");
+var uploadBttn = document.getElementById("uploadSubmit");
 var uploadFile = document.getElementById("uploadFile");
 
-function saveImage()
-{
+function saveImage() {
+    const url = 'http://localhost:8080/images/add'
     const file = uploadFile.files[0];
 
     let reader = new FileReader();
     reader.readAsArrayBuffer(file)
 
-    reader.onload = function() {
+    reader.onload = function () {
         const options = {
             method: 'POST',
             headers: {
@@ -25,4 +24,4 @@ function saveImage()
     }
 }
 
-bttn.onclick = saveImage;
+uploadBttn.onclick = saveImage;
