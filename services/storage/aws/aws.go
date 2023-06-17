@@ -10,8 +10,8 @@ import (
 
 type AWS interface {
 	DownloadObject(path string) (*AWSStorageObject, error)
-	DownloadObjects() ([]*AWSStorageObject, error)
-	UploadObject(filename string, data []byte) error
+	DownloadObjects(paths []string) ([]*AWSStorageObject, error)
+	UploadObject(filename string, contentType string, data []byte) error
 }
 
 type AWSManager struct {
@@ -68,13 +68,14 @@ func (m *AWSManager) DownloadObjects(paths []string) ([]*AWSStorageObject, error
 	return outputObjects, nil
 }
 
-func (m *AWSManager) UploadObject(path string, data []byte) error {
+func (m *AWSManager) UploadObject(path string, contentType string, data []byte) error {
 	body := bytes.NewReader(data)
 
 	_, err := m.client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(m.bucketName),
-		Key:    aws.String(path),
-		Body:   body,
+		Bucket:      aws.String(m.bucketName),
+		Key:         aws.String(path),
+		ContentType: aws.String(contentType),
+		Body:        body,
 	})
 
 	return err

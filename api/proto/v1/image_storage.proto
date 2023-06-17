@@ -14,7 +14,8 @@ service ImageStorage {
 
 message CreateImageRequest {
   string path = 1;
-  bytes image = 2;
+  string contentType = 2;
+  bytes image = 3;
 }
 
 message FindImageRequest {
