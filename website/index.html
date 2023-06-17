@@ -3,22 +3,35 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
-        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap">
+        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.css" />
         <link rel="stylesheet" href="css/style.css">
-
 
         <title>Lightstream</title>
     </head>
     <body>
-        <div class="upload-form">
-            <h2>Download your images to Lightstream</h2>
-            <input class="upload-file" id="uploadFile" type="file" name="file" multiple accept="image/*">
-            <input class="upload-button" id="uploadSubmit" type="submit" value="Upload">
-            <input class="gallery" type="submit" onclick="window.location.href = 'gallery.html';" value="Go to gallery">
+        <div class="header-container">
+            <h2>Welcome to Lightstream</h2>
+        </div>
+        <div class="wrapper">
+            <div class="search-form">
+                <input class="search" id="search" type="search" name="search" placeholder="Find image">
+                <input class="search-button" id="searchSubmit" type="submit" value="Search">
+                <input class="search-all-button" id="searchAll" type="submit" value="Get all">
+            </div>
+            <div class="upload-form">
+                <input class="upload-file" id="uploadFile" type="file" name="file" multiple accept="image/*">
+                <input class="upload-button" id="uploadSubmit" type="submit" value="Upload">
+            </div>
+        </div>
+        <div id="imageContainer" class="image-container">
+        </div>
+        <div id="imagesContainer" class="images-container">
         </div>
     </body>
-    <script src="js/upload.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.js"></script>
 </html>
