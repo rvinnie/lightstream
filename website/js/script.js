@@ -1,14 +1,13 @@
 const searchBttn = document.getElementById("searchSubmit");
 const searchAllBttn = document.getElementById("searchAll");
-const searchElement = document.getElementById("search");
-const imageContainer = document.getElementById("imageContainer")
-const imagesContainer = document.getElementById("imagesContainer")
+const searchElement = document.getElementById("searchInput");
 const uploadBttn = document.getElementById("uploadSubmit");
 const uploadFile = document.getElementById("uploadFile");
+
 const url = 'http://localhost:8080'
 
 // Notifications
-const NotifyStatuses = { SUCCESS: 'success', ERROR: 'error' };
+const NotifyStatuses = { SUCCESS: 'success', ERROR: 'error', WARNING: 'warning' };
 
 function pushNotify(status, title) {
     let myNotify = new Notify({
@@ -21,81 +20,61 @@ function pushNotify(status, title) {
     })
 }
 
-// Searching images scripts
+// Getting single image
 async function searchImage() {
     const searchId = searchElement.value
 
     if (searchId == "") {
-        console.log("HTTP-Error: Bad Request")
-        imagesContainer.innerHTML = ''
-        imageContainer.innerHTML = ''
-        pushNotify(NotifyStatuses.ERROR, `Enter resource id `)
+        pushNotify(NotifyStatuses.ERROR, `Enter image id`)
         return
     }
 
     const uri = `${url}/images/${searchId}`
-    const options = {
-        method: "GET"
-    }
-
-    const response = await fetch(uri, options)
-
-    if (response.status === 200) {
-        const imageBlob = await response.blob()
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-
-        const image = document.createElement('img')
-        image.src = imageObjectURL
-        image.className = 'single-image'
-
-        imageContainer.innerHTML = ''
-        imagesContainer.innerHTML = ''
-        imageContainer.append(image)
-    } else {
-        pushNotify(NotifyStatuses.ERROR, `Image with such id does not exist `)
-    }
-}
-
-async function searchImages() {
-    const uri = `${url}/images`
-    const options = {
-        method: "GET"
-    }
-
-    const response = await fetch(uri, options)
+    const response = await fetch(uri, { method: "GET" })
 
     if (response.status !== 200) {
-        imagesContainer.innerHTML = ''
-        imageContainer.innerHTML = ''
+        pushNotify(NotifyStatuses.ERROR, `Image with such id does not exist `)
+        return
+    }
+
+    const imageJson = await response.json()
+
+
+    new Fancybox([
+        {
+            src: "data:" + imageJson.contentType + ";base64," + imageJson.data,
+            type: "image",
+        },
+    ], {hideScrollbar: false});
+}
+
+// Getting all images
+async function searchImages() {
+    const uri = `${url}/images`
+    const response = await fetch(uri, { method: "GET" })
+
+    if (response.status !== 200) {
         pushNotify(NotifyStatuses.ERROR, 'Unable to get images')
         return
     }
 
-    imageContainer.innerHTML = ''
-    imagesContainer.innerHTML = ''
     const images = await response.json()
+    let galleryItems = [];
+
+    if (images.length == 0) {
+        pushNotify(NotifyStatuses.WARNING, 'Storage is empty')
+        return
+    }
 
     for (let i = 0; i < images.length; i++) {
-        const image = document.createElement('img')
-        image.src = "data:" + images[i].contentType + ";base64," + images[i].data;
-        image.className = 'image'
-
-        const imageBox = document.createElement('div')
-        imageBox.className = 'img-box'
-        const transparentBox = document.createElement('div')
-        transparentBox.className = 'transparent-box'
-        const caption = document.createElement('div')
-        caption.className = 'caption'
-        const imageName = document.createElement('p')
-        imageName.innerText = images[i].name
-
-        caption.append(imageName)
-        transparentBox.append(caption)
-        imageBox.append(image)
-        imageBox.append(transparentBox)
-
-        imagesContainer.append(imageBox)
+        let galleryItem = {
+            src: "data:" + images[i].contentType + ";base64," + images[i].data,
+            type: "image",
+        }
+        galleryItems.push(galleryItem)
     }
+
+    new Fancybox(galleryItems, {hideScrollbar: false})
 }
 
 
@@ -103,6 +82,11 @@ async function searchImages() {
 function saveImage() {
     const uri = `${url}/images/add`
     const file = uploadFile.files[0];
+
+    if (file == null) {
+        pushNotify(NotifyStatuses.ERROR, `Choose file`)
+        return
+    }
 
     let reader = new FileReader();
     reader.readAsArrayBuffer(file)
@@ -118,9 +102,10 @@ function saveImage() {
         };
 
         const response = await fetch(uri, options)
+        const id = await response.json()
 
         if (response.status === 201) {
-            pushNotify(NotifyStatuses.SUCCESS, `Image successful uploaded`)
+            pushNotify(NotifyStatuses.SUCCESS, `Image successful uploaded with id=${id}`)
         } else {
             pushNotify(NotifyStatuses.ERROR, `Unable to upload file`)
         }

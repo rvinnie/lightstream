@@ -3,22 +3,23 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
         <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.css" />
         <link rel="stylesheet" href="css/style.css">
-
         <title>Lightstream</title>
     </head>
     <body>
-        <div class="header-container">
-            <h2>Welcome to Lightstream</h2>
-        </div>
         <div class="wrapper">
+            <div class="header-container">
+                <h2>Welcome to Lightstream</h2>
+            </div>
             <div class="search-form">
-                <input class="search" id="search" type="search" name="search" placeholder="Find image">
+                <input class="search-input" id="searchInput" type="search" name="search" placeholder="Find image">
                 <input class="search-button" id="searchSubmit" type="submit" value="Search">
                 <input class="search-all-button" id="searchAll" type="submit" value="Get all">
             </div>
@@ -27,11 +28,8 @@
                 <input class="upload-button" id="uploadSubmit" type="submit" value="Upload">
             </div>
         </div>
-        <div id="imageContainer" class="image-container">
-        </div>
-        <div id="imagesContainer" class="images-container">
-        </div>
     </body>
     <script src="js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 </html>

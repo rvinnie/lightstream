@@ -14,9 +14,9 @@ services:
       - ./website:/var/www/lightstream/website
     restart: always
 
-  postgres:
+  postgres_gateway:
     image: postgres:15.3-alpine
-    container_name: postgres
+    container_name: postgres_gateway
     ports:
       - "5432:5432"
     env_file:
@@ -86,7 +86,7 @@ services:
     volumes:
       - ./services/gateway/:/usr/src/app
     depends_on:
-      - postgres
+      - postgres_gateway
       - rabbit
       - storage
       - history

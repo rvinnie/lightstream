@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"github.com/gin-contrib/cors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rvinnie/lightstream/services/gateway/monitoring"
@@ -133,7 +132,7 @@ func (h *ImagesHandler) getImage(c *gin.Context) {
 	param := c.Param("path")
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, errors.New("invalid path"))
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
@@ -155,12 +154,13 @@ func (h *ImagesHandler) getImage(c *gin.Context) {
 		return
 	}
 
-	//c.JSON(http.StatusOK, imageResponse{
-	//	Name:        resp.Name,
-	//	ContentType: resp.ContentType,
-	//	Data:        resp.Image,
-	//})
-	c.Data(http.StatusOK, resp.ContentType, resp.Image)
+	image := imageResponse{
+		Name:        resp.Name,
+		ContentType: resp.ContentType,
+		Data:        resp.Image,
+	}
+
+	c.JSON(http.StatusOK, image)
 }
 
 func (h *ImagesHandler) getImages(c *gin.Context) {
@@ -185,5 +185,9 @@ func (h *ImagesHandler) getImages(c *gin.Context) {
 		})
 	}
 
+	if images == nil {
+		c.JSON(http.StatusOK, []imageResponse{})
+		return
+	}
 	c.JSON(http.StatusOK, images)
 }
