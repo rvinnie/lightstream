@@ -1,17 +1,18 @@
+<a name="readme-top"></a>
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-
-<h2 align="center">Lightstream</h3>
-
-  <p align="center">
-    Photo hosting microservice application
-    <br />
-    <br />
-    <a href="https://github.com/rvinnie/lightstream/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/rvinnie/lightstream/issues">Request Feature</a>
-  </p>
+<h1 align="center">Lightstream</h1>
+    <p align="center">
+        Photo hosting microservice application
+        <br />
+        <a href="https://github.com/rvinnie/lightstream/issues">Report Bug</a>
+        ·
+        <a href="https://github.com/rvinnie/lightstream/issues">Request Feature</a>
+        <br />
+        <br />
+        <img alt="Static Badge" src="https://img.shields.io/badge/Go-v1.19-EEEEEE?logo=go&logoColor=white&labelColor=00ADD8">
+    </p>
 </div>
 
 
@@ -22,6 +23,8 @@
     <li><a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#project-structure">Project Structure</a></li>
+        <li><a href="#monitoring">Monitoring</a></li>
+        <li><a href="#ci">Continuous Integration</a></li>
       </ul>
     </li>
     <li><a href="#getting-started">Getting Started</a>
@@ -30,7 +33,6 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#monitoring">Monitoring</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -51,10 +53,38 @@ Technologies used:
 * [Python](https://www.python.org/), [JS](https://developer.mozilla.org/en-US/docs/Web/JavaScript), [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 ### Project Structure
-TODO: add project diagram
+The project consists of three microservices: ***gateway***, ***history***, ***storage***:
+- ***gateway*** microservice is the central part of the application. All other parts of the application are associated with this service.
+- ***history*** microservice saves the history of image requests.
+- ***storage*** microservice communicates with Yandex cloud and saves pictures there.
+
+<img src="images/diagram.png" alt="diagram">
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MONITORING -->
+### Monitoring
+The project is configured to monitor the system with Prometheus and Grafana.  
+(Grafana - `http://localhost:3030`)    
+
+[4 Golden Signals](https://sre.google/sre-book/monitoring-distributed-systems/) are used to monitor the application
+
+<img src="images/grafana.jpeg" alt="grafana">
+
+If the server crashes or the load is too high, the Alertmanager will send a notification in Telegram.
 
 
-Go to the <a href="#getting-started">Getting Started</a> to try the project locally.
+<p align="center">
+    <img src="images/alertmanager.jpeg" width="35%" alt="grafana">
+</p>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MONITORING -->
+### Continuous Integration
+Continuous Integration pipeline set up in the project.     
+In the case of a push to the main branch, Docker Images of changed microservices are rebuilt and sent to the [Yandex Cloud Registry](https://cloud.yandex.com/en-ru/docs/container-registry/)  
+
+<img src="images/ci.png" width="75%" alt="ci">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -72,43 +102,45 @@ To get a local copy up and running follow these example steps.
    ```
 2. Set environment variables  
    - `services/gateway/.env`  
-   ```sh
-   POSTGRES_USER=<postgres user>
-   POSTGRES_PASSWORD=<postgres password>
-   POSTGRES_DB=<database name>
-   DATABASE_HOST=postgres_gateway
+      ```sh
+      POSTGRES_USER=<postgres user>
+      POSTGRES_PASSWORD=<postgres password>
+      POSTGRES_DB=<database name>
+      DATABASE_HOST=postgres_gateway
    
-   RABBIT_USER=<RabbitMQ user>
-   RABBIT_PASSWORD=<RabbitMQ password>
+      RABBIT_USER=<RabbitMQ user>
+      RABBIT_PASSWORD=<RabbitMQ password>
    
-   GIN_MODE=debug
-   ```
+      GIN_MODE=debug
+      ```
    - `services/history/.env`
-   ```sh
-   POSTGRES_USER=<postgres user>
-   POSTGRES_PASSWORD=<postgres password>
-   POSTGRES_DB=<database name>
-   DATABASE_HOST=postgres_history
+      ```sh
+      POSTGRES_USER=<postgres user>
+      POSTGRES_PASSWORD=<postgres password>
+      POSTGRES_DB=<database name>
+      DATABASE_HOST=postgres_history
    
-   RABBIT_USER=<RabbitMQ user>
-   RABBIT_PASSWORD=<RabbitMQ password>
-   ```
+      RABBIT_USER=<RabbitMQ user>
+      RABBIT_PASSWORD=<RabbitMQ password>
+      ```
    - `services/history/.env`
-   ```sh
-   AWS_ACCESS_KEY_ID=<Yandex Cloud access key identifier>
-   AWS_SECRET_ACCESS_KEY=<Yandex Cloud secret access key>
-   AWS_REGION=ru-central1
-   ```
+       ```sh
+       AWS_ACCESS_KEY_ID=<Yandex Cloud access key identifier>
+       AWS_SECRET_ACCESS_KEY=<Yandex Cloud secret access key>
+       AWS_REGION=ru-central1
+       ```
    - `monitoring/alertmanager/alertmanager.yml`
-   ```yml
-   ...
-   - bot_token: <telegram bot token (string)>
-     api_url: 'https://api.telegram.org'
-     chat_id: <telegram chat id (int)>
-   ...
-   ```
-3. Install [docker](https://www.docker.com/)
-4. Choose one of three project versions
+      ```yml
+      ...
+      - bot_token: <telegram bot token (string)>
+        api_url: 'https://api.telegram.org'
+        chat_id: <telegram chat id (int)>
+      ...
+      ```
+   -  `.github/workflows/push.yml`  
+   Put `YC_SA_JSON_CREDENTIALS` in Github Actions secrets.
+3. Make sure [docker](https://www.docker.com/) is installed
+4. Choose one of the three versions of the project and run
    - development version
       ```sh
       make
@@ -138,20 +170,7 @@ All added images are saved in Yandex Cloud Object Storage.
 An example of a gallery with two images (`Upload` two images -> press `Get all`)
 
 <img src="images/gallery.png" alt="Gallery">
-
-<!-- MONITORING -->
-## Monitoring
-The project is configured to monitor the system with Prometheus and Grafana.  
-Welcome to Grafana `http://localhost:3030`
-
-<img src="images/grafana.jpeg" alt="grafana">
-
-If the server crashes or the load is too high, the Alertmanager will send a notification in Telegram.
-
-
-<p align="center">
-    <img src="images/alertmanager.jpeg" width="35%" alt="grafana">
-</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 ## Roadmap
