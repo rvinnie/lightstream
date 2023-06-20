@@ -39,6 +39,7 @@
   </ol>
 </details>
 
+<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 This project is a photo hosting implementation aimed at learning microservice architecture and devops culture.
@@ -52,6 +53,7 @@ Technologies used:
 * [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)
 * [Python](https://www.python.org/), [JS](https://developer.mozilla.org/en-US/docs/Web/JavaScript), [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
+<!-- PROJECT STRUCTURE -->
 ### Project Structure
 The project consists of three microservices: ***gateway***, ***history***, ***storage***:
 - ***gateway*** microservice is the central part of the application. All other parts of the application are associated with this service.
@@ -79,7 +81,7 @@ If the server crashes or the load is too high, the Alertmanager will send a noti
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- MONITORING -->
+<!-- CI -->
 ### Continuous Integration
 Continuous Integration pipeline set up in the project.     
 In the case of a push to the main branch, Docker Images of changed microservices are rebuilt and sent to the [Yandex Cloud Registry](https://cloud.yandex.com/en-ru/docs/container-registry/)  
