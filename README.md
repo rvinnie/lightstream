@@ -45,7 +45,8 @@
 This project is a photo hosting implementation aimed at learning microservice architecture and devops culture.
 
 Technologies used:
-* [Golang](https://go.dev/), [PostgreSQL](https://www.postgresql.org/)
+* [Golang](https://go.dev/)
+* [PostgreSQL](https://www.postgresql.org/)
 * [gRPC](https://grpc.io/), [REST](https://ru.wikipedia.org/wiki/REST), [AMQP](https://ru.wikipedia.org/wiki/AMQP) ([RabbitMQ](https://www.rabbitmq.com/))
 * [Docker](https://www.docker.com/), [CI/CD](https://ru.wikipedia.org/wiki/CI/CD), [Github Actions](https://github.com/features/actions), [Terraform](https://www.terraform.io/), [Kubernetes](https://kubernetes.io/)
 * [Amazon S3](https://aws.amazon.com/s3/), [Yandex Cloud](https://cloud.yandex.com/en-ru/)
@@ -177,6 +178,7 @@ An example of a gallery with two images (`Upload` two images -> press `Get all`)
 <!-- ROADMAP -->
 ## Roadmap
 
+- [ ] Send image by link
 - [ ] Add user entity
 - [ ] Add authorization microservice (JWT)
 - [ ] Add Terraform
